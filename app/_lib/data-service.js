@@ -17,7 +17,6 @@ export const getProducts = async function () {
     )
     .order("name");
   if (error) {
-    console.error(error);
     throw new Error("Products could not be loaded");
   }
   return data;
@@ -26,7 +25,6 @@ export const getProducts = async function () {
 export const getCategories = async function () {
   const { data, error } = await supabase.from("categories").select("*");
   if (error) {
-    console.error(error);
     throw new Error("Categories could not be loaded");
   }
   return data;
@@ -41,7 +39,6 @@ export async function getCategoryByFullPath(path) {
     .maybeSingle();
 
   if (error) {
-    console.error("Kategori bulunamadı:", error.message);
     return null;
   }
 
@@ -55,7 +52,6 @@ export async function getProductsByCategory(categoryId) {
     .eq("category_id", categoryId);
 
   if (error) {
-    console.error("Ürün çekme hatası:", error.message);
     return [];
   }
 
@@ -111,7 +107,6 @@ export async function getProductsByCategoryTree(categoryIds) {
     .in("category_id", categoryIds);
 
   if (error) {
-    console.error("Ürün çekme hatası:", error.message);
     return [];
   }
 
@@ -148,7 +143,6 @@ async function generateAndUpdateProductSlugs() {
     .select("id, name");
 
   if (error) {
-    console.error("Ürünler alınamadı:", error);
     return;
   }
 
@@ -159,15 +153,6 @@ async function generateAndUpdateProductSlugs() {
       .from("products")
       .update({ slug })
       .eq("id", product.id);
-
-    if (updateError) {
-      console.error(
-        `Slug güncellenemedi (${product.id}):`,
-        updateError.message
-      );
-    } else {
-      console.log(`Slug güncellendi: ${product.name} → ${slug}`);
-    }
   }
 }
 
@@ -190,28 +175,21 @@ export async function getProductBySlug(slug) {
     .maybeSingle();
 
   if (error) {
-    console.error("Ürün alınamadı:", error.message);
     return null;
   }
 
   return data;
 }
 
-export async function createCustomer({ email, fullName, auth_id }) {
+export async function createCustomer(newCustomer) {
   const [first_name, ...rest] = fullName.split(" ");
   const last_name = rest.join(" ") || "";
 
-  const { data, error } = await supabase.from("customers").insert([
-    {
-      email,
-      first_name,
-      last_name,
-      auth_id, // 🔥 burası eklendi
-    },
-  ]);
+  const { data, error } = await supabase
+    .from("customers")
+    .insert([newCustomer]);
 
   if (error) {
-    console.error("Müşteri oluşturulamadı:", error.message);
     throw error;
   }
 
@@ -226,7 +204,6 @@ export async function getCustomer(email) {
     .maybeSingle();
 
   if (error) {
-    console.error("Müşteri alınamadı:", error.message);
     throw error;
   }
 
@@ -254,11 +231,9 @@ export async function getFavorites(customerId) {
   )
 `
     )
-
     .eq("customer_id", customerId);
 
   if (error) {
-    console.error("Favorites cannot get.", error.message);
     throw error;
   }
 

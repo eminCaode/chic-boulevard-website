@@ -28,7 +28,6 @@ export async function POST(req) {
       process.env.STRIPE_WEBHOOK_SECRET
     );
   } catch (err) {
-    console.error("❌ Webhook doğrulama hatası:", err.message);
     return new Response(`Webhook Error: ${err.message}`, { status: 400 });
   }
 
@@ -38,7 +37,6 @@ export async function POST(req) {
     const customerId = session.metadata?.customer_id;
 
     if (!orderId || !customerId) {
-      console.error("❌ Eksik metadata:", { orderId, customerId });
       return new Response("Eksik metadata", { status: 400 });
     }
 
@@ -49,29 +47,67 @@ export async function POST(req) {
       .eq("order_id", orderId);
 
     if (existingError) {
-      console.error("❌ Order kontrol hatası:", existingError.message);
       return new Response("Order kontrol hatası", { status: 500 });
     }
 
     if (existingItems.length > 0) {
-      // 🛑 Zaten yazılmış → sadece order'ı paid yap ve sepeti sil
+      // Sepeti al (stok düşürme için)
+      const { data: cartItems, error: cartError } = await supabase
+        .from("cart")
+        .select("quantity, product_variant_id")
+        .eq("customer_id", customerId);
+
+      if (cartError) {
+      } else if (cartItems?.length) {
+        // Varyantları al
+        const variantIds = cartItems.map((item) => item.product_variant_id);
+        const { data: variants, error: variantError } = await supabase
+          .from("product_variants")
+          .select("id, stock")
+          .in("id", variantIds);
+
+        if (variantError) {
+        } else if (variants?.length) {
+          // Stokları güncelle
+          for (const item of cartItems) {
+            const variant = variants.find(
+              (v) => v.id === item.product_variant_id
+            );
+            if (!variant) {
+              continue;
+            }
+
+            const newStock = Math.max((variant.stock || 0) - item.quantity, 0);
+
+            const { error: stockError } = await supabase
+              .from("product_variants")
+              .update({ stock: newStock })
+              .eq("id", variant.id);
+
+            if (stockError) {
+            } else {
+            }
+          }
+        }
+      }
+
+      // Order'ı paid yap ve sepeti sil
       await supabase
         .from("orders")
         .update({ status: "paid" })
         .eq("id", orderId);
       await supabase.from("cart").delete().eq("customer_id", customerId);
-      console.log("🛑 Webhook: order_items zaten var, tekrar yazılmadı.");
+
       return new Response("ok", { status: 200 });
     }
 
-    // 🔄 1. Sepeti al
+    // 🔄 1. Sepeti al (İlk webhook çalışması)
     const { data: cartItems, error: cartError } = await supabase
       .from("cart")
       .select("quantity, product_variant_id")
       .eq("customer_id", customerId);
 
     if (cartError || !cartItems?.length) {
-      console.error("❌ Sepet alınamadı:", cartError?.message || cartItems);
       return new Response("Sepet alınamadı", { status: 500 });
     }
 
@@ -84,10 +120,6 @@ export async function POST(req) {
       .in("id", variantIds);
 
     if (variantError || !variants?.length) {
-      console.error(
-        "❌ Varyantlar alınamadı:",
-        variantError?.message || variants
-      );
       return new Response("Varyantlar alınamadı", { status: 500 });
     }
 
@@ -99,7 +131,6 @@ export async function POST(req) {
       .in("id", productIds);
 
     if (productError || !products?.length) {
-      console.error("❌ Ürünler alınamadı:", productError?.message || products);
       return new Response("Ürünler alınamadı", { status: 500 });
     }
 
@@ -113,13 +144,11 @@ export async function POST(req) {
         : null;
 
       if (!variant || !product) {
-        console.warn("⚠️ Eşleşme bulunamadı:", { variant, product });
         continue;
       }
 
       const price = Number(product.price);
       if (isNaN(price)) {
-        console.warn("⚠️ Fiyat geçersiz:", product.price);
         continue;
       }
 
@@ -134,7 +163,6 @@ export async function POST(req) {
     }
 
     if (!orderItemsPayload.length) {
-      console.error("❌ Hiçbir order_item oluşturulamadı.");
       return new Response("Ürünler eklenemedi", { status: 500 });
     }
 
@@ -143,29 +171,35 @@ export async function POST(req) {
       .insert(orderItemsPayload);
 
     if (insertError) {
-      console.error("❌ order_items eklenemedi:", insertError.message);
       return new Response("Sipariş ürünleri eklenemedi", { status: 500 });
     }
 
     // 🔄 5. Stokları güncelle
     for (const item of cartItems) {
       const variant = variants.find((v) => v.id === item.product_variant_id);
-      if (!variant) continue;
+      if (!variant) {
+        continue;
+      }
 
       const newStock = Math.max((variant.stock || 0) - item.quantity, 0);
-      await supabase
+
+      const { error: stockError } = await supabase
         .from("product_variants")
         .update({ stock: newStock })
         .eq("id", variant.id);
     }
 
     // ✅ 6. Sipariş durumu "paid"
-    await supabase.from("orders").update({ status: "paid" }).eq("id", orderId);
+    const { error: orderUpdateError } = await supabase
+      .from("orders")
+      .update({ status: "paid" })
+      .eq("id", orderId);
 
     // ✅ 7. Sepeti temizle
-    await supabase.from("cart").delete().eq("customer_id", customerId);
-
-    console.log("✅ Webhook: Sipariş başarıyla işlendi.");
+    const { error: cartDeleteError } = await supabase
+      .from("cart")
+      .delete()
+      .eq("customer_id", customerId);
   }
 
   return new Response("ok", { status: 200 });

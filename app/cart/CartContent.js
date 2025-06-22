@@ -47,7 +47,7 @@ export default function CartContent({ cart }) {
           height={160}
           className="mb-6"
         />
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Sepetiniz boş</h2>
+        <h1 className="text-2xl font-bold text-gray-800 mb-2">Sepetiniz boş</h1>
         <p className="text-gray-500 mb-6">
           Henüz bir ürün eklemediniz. Alışverişe başlamak ister misiniz?
         </p>
@@ -124,7 +124,7 @@ export default function CartContent({ cart }) {
         </div>
 
         <div className="border border-gray-300 bg-white rounded-lg p-6 shadow-md h-fit">
-          <h2 className="text-lg font-semibold mb-4">Sipariş Özeti</h2>
+          <h1 className="text-lg font-semibold mb-4">Sipariş Özeti</h1>
           <div className="flex justify-between mb-2">
             <span>
               Ara Toplam ({cart.reduce((sum, item) => sum + item.quantity, 0)}{" "}

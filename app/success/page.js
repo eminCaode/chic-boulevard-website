@@ -1,6 +1,16 @@
+"use client";
+
 import Link from "next/link";
+import { useCart } from "../context/CartContext";
+import { useEffect } from "react";
 
 export default function SuccessPage() {
+  const { clearCart, refreshCart } = useCart();
+
+  useEffect(() => {
+    refreshCart();
+  }, [refreshCart]);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="bg-white shadow-xl rounded-2xl p-8 max-w-md text-center">

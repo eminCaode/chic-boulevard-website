@@ -51,7 +51,7 @@ export default function ProductDetailClient({ product, favorite }) {
         : {
             product_id: product.id,
             size_id: getSizeId(selectedSize),
-            color_id: 2,
+            color_id: product.product_variants[0]?.color_id,
             quantity: 1,
           };
 
@@ -299,6 +299,7 @@ function getSizeId(name) {
     42: 13,
     43: 14,
     44: 15,
+    STD: 26,
   };
   return map[name] ?? null;
 }

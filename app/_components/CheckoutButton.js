@@ -21,8 +21,7 @@ export default function CheckoutButton() {
         alert("Checkout başlatılamadı.");
       }
     } catch (error) {
-      console.error("Checkout hatası:", error);
-      alert("Bir hata oluştu.");
+      throw error;
     }
 
     setLoading(false);

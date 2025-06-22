@@ -40,17 +40,9 @@ function ProductModal({ product, size, setSelectedSize, onClose }) {
         : {
             product_id: product.id,
             size_id: getSizeId(size),
-            color_id: 2,
+            color_id: product.product_variants[0]?.color_id,
             quantity: 1,
           };
-    console.log("Sepete eklenmek istenen veriler:", cartData);
-    console.log("Waist ID:", getWaistId(selectedWaist, product));
-    console.log("Length ID:", getLengthId(selectedLength, product));
-
-    console.log("Varyantlarda waist ve length isimleri:");
-    console.log(product.product_variants.map((v) => v.waist_size?.name));
-    console.log(product.product_variants.map((v) => v.length_size?.name));
-    console.log("Seçilen:", selectedWaist, selectedLength);
 
     startTransition(async () => {
       try {
@@ -299,6 +291,7 @@ function getSizeId(selectedSize) {
     42: 13,
     43: 14,
     44: 15,
+    STD: 26,
   };
   return map[selectedSize] ?? null;
 }

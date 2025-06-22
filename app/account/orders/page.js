@@ -7,10 +7,10 @@ import { cookies } from "next/headers";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 
 export default async function OrdersPage() {
-  const supabase = createServerComponentClient({ cookies: cookies() });
+  // ✅ Next.js 15 için cookies()'i await etmemiz gerekiyor
+  const cookieStore = await cookies();
+  const supabase = createServerComponentClient({ cookies: () => cookieStore });
   const orders = await getUserOrders(supabase);
-
-  console.log("orders", orders);
 
   if (!orders || orders.length === 0) {
     return (
@@ -25,9 +25,9 @@ export default async function OrdersPage() {
               className="mb-6 opacity-70"
             />
           </div>
-          <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+          <h1 className="text-2xl font-semibold text-gray-800 mb-2">
             Henüz siparişiniz yok
-          </h2>
+          </h1>
           <p className="text-gray-500 text-sm mb-4">
             Alışveriş yapmaya başlayarak sipariş listenizi oluşturun.
           </p>

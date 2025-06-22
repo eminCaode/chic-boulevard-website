@@ -7,7 +7,6 @@ import { useState } from "react";
 import { FaRegStar, FaStar } from "react-icons/fa";
 
 function FavoriteClientPage({ favorites }) {
-  console.log("favorites", favorites);
   const [favList, setFavList] = useState(favorites);
   const [selectedSizes, setSelectedSizes] = useState({});
   const { refreshCart } = useCart();

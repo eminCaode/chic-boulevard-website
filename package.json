@@ -12,7 +12,7 @@
     "@heroicons/react": "^2.2.0",
     "@stripe/stripe-js": "^7.3.0",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
-    "@supabase/supabase-js": "^2.49.4",
+    "@supabase/supabase-js": "^2.50.0",
     "chic-boulevard-site": "file:",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.10.4",

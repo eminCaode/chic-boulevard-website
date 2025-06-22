@@ -4,7 +4,6 @@ import { deleteAddress } from "@/app/_lib/action";
 import { useState } from "react";
 
 function AddressClientPage({ addresses }) {
-  console.log(addresses);
   const [showForm, setShowForm] = useState(false);
   const [addressList, setAddressList] = useState(addresses);
   const [addressInfo, setAddressInfo] = useState(addresses);

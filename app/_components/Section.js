@@ -107,7 +107,9 @@ const Section = ({ title, products }) => {
                 ? ["39", "40", "41", "42", "43", "44"]
                 : sizeType === "waist_length"
                 ? ["Sepete Ekle"]
-                : ["STD"];
+                : sizeType === "none"
+                ? ["STD"]
+                : ["bilinmiyor"];
 
             return (
               <div

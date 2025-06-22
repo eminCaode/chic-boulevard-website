@@ -1,14 +1,12 @@
 "use server";
 
 import { auth } from "./auth";
-import supabase from "./supabase-server";
 
-export async function getUserOrders() {
+export async function getUserOrders(supabase) {
   const session = await auth();
   const customerId = session?.user?.customerId;
 
   if (!customerId) {
-    console.log("❌ Session bulunamadı");
     return [];
   }
 
@@ -35,14 +33,11 @@ export async function getUserOrders() {
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("❌ Orders getirme hatası:", error);
       return [];
     }
 
-    console.log("✅ Siparişler:", data);
     return data || [];
   } catch (err) {
-    console.error("❌ getUserOrders genel hatası:", err);
     return [];
   }
 }

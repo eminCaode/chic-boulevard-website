@@ -5,7 +5,6 @@ import Spinner from "./Spinner";
 
 async function Header() {
   const session = await auth();
-  console.log(session);
   return (
     <header>
       <Suspense fallback={<Spinner />}>

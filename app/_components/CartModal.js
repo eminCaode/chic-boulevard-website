@@ -3,25 +3,25 @@
 import Image from "next/image";
 import { useCart } from "../context/CartContext";
 import { deleteFromCart } from "../_lib/action";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function CartModal() {
-  const { cart: initialCart } = useCart();
-  const [cartList, setCartList] = useState(initialCart);
+  const { cart, refreshCart } = useCart(); // Yerel state yerine global cart kullan
   const router = useRouter();
 
-  const total = cartList.reduce((acc, item) => {
+  const total = cart.reduce((acc, item) => {
     const price = item.product_variant_id?.products?.price ?? 0;
     return acc + price * item.quantity;
   }, 0);
 
   const handleDelete = async (product_variant_id) => {
-    await deleteFromCart({ product_variant_id });
-    router.refresh();
-    setCartList((prev) =>
-      prev.filter((item) => item.product_variant_id.id !== product_variant_id)
-    );
+    try {
+      await deleteFromCart({ product_variant_id });
+      // Silme işleminden sonra cart'ı yenile
+      await refreshCart();
+    } catch (error) {
+      throw error;
+    }
   };
 
   const getSizeLabel = (variant) => {
@@ -37,13 +37,13 @@ export default function CartModal() {
   return (
     <div className="bg-white rounded-b-2xl py-6 px-6 flex flex-col gap-4 w-[400px] absolute z-50 top-20 right-3 border border-gray-300">
       <h1 className="font-bold text-lg">
-        My Shopping Cart ({cartList.length} product
-        {cartList.length !== 1 && "s"})
+        My Shopping Cart ({cart.length} product
+        {cart.length !== 1 && "s"})
       </h1>
 
       <div className="relative">
         <div className="flex flex-col gap-4 max-h-[230px] custom-scroll overflow-y-auto pr-2">
-          {cartList.map((item) => {
+          {cart.map((item) => {
             const product = item.product_variant_id?.products;
             const variant = item.product_variant_id;
 
@@ -86,7 +86,7 @@ export default function CartModal() {
 
       <button
         onClick={() => {
-          if (cartList.length > 0) {
+          if (cart.length > 0) {
             router.push("/checkout/address");
           }
         }}

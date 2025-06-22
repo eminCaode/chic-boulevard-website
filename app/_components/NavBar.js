@@ -102,6 +102,8 @@ function Navbar({ session }) {
         />
         <button
           type="submit"
+          aria-label="Ara"
+          title="Ara"
           className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
         >
           <FiSearch size={18} />
@@ -109,7 +111,7 @@ function Navbar({ session }) {
       </form>
 
       {/* Kullanıcı İkonları */}
-      <div className="flex gap-4 h-full items-center">
+      <div className="flex gap-4 h-full items-center px-2">
         {session?.user?.image ? (
           <Link href="/account/orders" className="w-full">
             <Image
@@ -122,12 +124,22 @@ function Navbar({ session }) {
             />
           </Link>
         ) : (
-          <Link href="/account" className="w-full">
+          <Link
+            href="/account"
+            className="w-full"
+            aria-label="Hesabım"
+            title="Hesabım"
+          >
             <HiOutlineUser className="h-6 w-6" />
           </Link>
         )}
 
-        <Link href="/account/favorites" className="w-full">
+        <Link
+          href="/account/favorites"
+          className="w-full"
+          aria-label="Favorilerim"
+          title="Favorilerim"
+        >
           <HiOutlineStar className="h-6 w-6" />
         </Link>
         <div
@@ -135,7 +147,12 @@ function Navbar({ session }) {
           onMouseLeave={() => closeCartModal()}
           className="h-full flex items-center justify-center"
         >
-          <Link href="/cart" className="w-full relative">
+          <Link
+            href="/cart"
+            className="w-full relative p-2"
+            aria-label="Sepetim"
+            title="Sepetim"
+          >
             <HiOutlineShoppingCart className="h-6 w-6" />
           </Link>
 

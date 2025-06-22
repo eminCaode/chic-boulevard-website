@@ -12,19 +12,39 @@ export function CartProvider({ children }) {
   const openCartModal = () => {
     setCartModal(true);
   };
+
   const closeCartModal = () => {
     setCartModal(false);
   };
 
   const refreshCart = async () => {
-    const data = await getCart();
-    setCart(data);
-    setCartLoaded(true);
+    try {
+      const data = await getCart();
+      setCart(data);
+      setCartLoaded(true);
+    } catch (error) {
+      setCart([]);
+      setCartLoaded(true);
+    }
   };
+
+  // Sepeti tamamen temizle (webhook için)
+  const clearCart = () => {
+    setCart([]);
+  };
+
   useEffect(() => {
     refreshCart();
   }, []);
-  if (!cartLoaded) return null; // veya bir <Loading /> gösterebilirsin
+
+  // Modal açıldığında cart'ı yenile
+  useEffect(() => {
+    if (cartModal) {
+      refreshCart();
+    }
+  }, [cartModal]);
+
+  if (!cartLoaded) return null;
 
   return (
     <CartContext.Provider
@@ -32,6 +52,7 @@ export function CartProvider({ children }) {
         cart,
         setCart,
         refreshCart,
+        clearCart,
         openCartModal,
         closeCartModal,
         cartModal,
@@ -42,5 +63,4 @@ export function CartProvider({ children }) {
   );
 }
 
-// Kullanmak için hook
 export const useCart = () => useContext(CartContext);

@@ -23,11 +23,11 @@ export default function LoginPage() {
 
         <p className="text-xs text-gray-500 pt-4">
           By signing in, you agree to our{" "}
-          <Link href="/terms" className="underline hover:text-gray-700">
+          <Link href="/" className="underline hover:text-gray-700">
             Terms of Service
           </Link>{" "}
           and{" "}
-          <Link href="/privacy" className="underline hover:text-gray-700">
+          <Link href="/" className="underline hover:text-gray-700">
             Privacy Policy
           </Link>
           .

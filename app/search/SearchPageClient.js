@@ -44,9 +44,9 @@ export default function SearchPageClient({ results = [] }) {
             d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z"
           />
         </svg>
-        <h2 className="text-xl font-semibold text-gray-800 mb-2">
+        <h1 className="text-xl font-semibold text-gray-800 mb-2">
           Üzgünüz, sonuç bulunamadı
-        </h2>
+        </h1>
         <p className="text-sm text-gray-500 mb-4 text-center max-w-md">
           Aradığınız kriterlere uygun ürün bulamadık. Yazım hatası olmadığından
           emin olun ya da farklı anahtar kelimeler deneyin.

@@ -6,7 +6,6 @@ import AddressForm from "@/app/_components/AddressForm";
 import { createOrderFromAddress } from "@/app/_lib/action";
 
 export default function CheckoutAddressClient({ addresses }) {
-  console.log("addresses", addresses);
   const router = useRouter();
   const [showForm, setShowForm] = useState(false);
   const [addressList, setAddressList] = useState(addresses);

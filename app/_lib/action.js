@@ -16,7 +16,6 @@ export async function signOutAction() {
 }
 
 export async function addToFavorites(productId) {
-  console.log("product_id", productId);
   const session = await auth();
   if (!session || !session.user?.customerId) {
     // 🔁 Kullanıcı login değil → yönlendir
@@ -42,7 +41,6 @@ export async function addToFavorites(productId) {
     .insert([{ customer_id, product_id: productId }]);
 
   if (error) {
-    console.log(error);
     throw new Error("Fava eklenemedi.");
   }
 }
@@ -57,14 +55,11 @@ export async function deleteFromFavorites(productId) {
     .eq("customer_id", customer_id)
     .eq("product_id", productId);
   if (error) {
-    console.error(error);
     throw new Error("Favoriden silinemedi.");
   }
 }
 
 export async function addToCart(cartData) {
-  console.log("Sepete eklenmek istenen veriler:", cartData);
-
   const session = await auth();
   if (!session || !session.user) {
     redirect("/login");
@@ -86,7 +81,6 @@ export async function addToCart(cartData) {
       .maybeSingle();
 
     if (!data || error) {
-      console.error("Varyant bulunamadı (single/numeric):", cartData);
       throw new Error("Ürün varyantı bulunamadı.");
     }
 
@@ -102,7 +96,6 @@ export async function addToCart(cartData) {
       .maybeSingle();
 
     if (!data || error) {
-      console.error("Varyant bulunamadı (waist/length):", cartData);
       throw new Error("Ürün varyantı bulunamadı.");
     }
 
@@ -131,7 +124,6 @@ export async function addToCart(cartData) {
       .eq("id", existing.id);
 
     if (updateError) {
-      console.error(updateError);
       throw new Error("Sepet güncellenemedi.");
     }
   } else {
@@ -145,7 +137,6 @@ export async function addToCart(cartData) {
     ]);
 
     if (insertError) {
-      console.error(insertError);
       throw new Error("Ürün sepete eklenemedi.");
     }
   }
@@ -163,7 +154,6 @@ export async function deleteFromCart({ product_variant_id }) {
     .eq("product_variant_id", product_variant_id);
 
   if (error) {
-    console.error(error);
     throw new Error("Carttan silinemedi.");
   }
 
@@ -220,7 +210,6 @@ export async function getCart() {
     .eq("customer_id", customerId);
 
   if (error) {
-    console.error("Cart cannot get.", error.message);
     throw error;
   }
 
@@ -239,10 +228,8 @@ export async function getFavorites() {
     .eq("customer_id", customerId);
 
   if (error) {
-    console.error("Favorites cannot get.", error.message);
     throw error;
   }
-  console.log("get favorietes data", data);
   return data.map((item) => item.products.id); // ✅ sadeleştirilmiş veri
 }
 
@@ -259,7 +246,6 @@ export async function isFavorite(productId) {
     .eq("product_id", productId);
 
   if (error) {
-    console.error("Supabase error:", error);
     return false;
   }
   return data.length > 0;
@@ -283,7 +269,6 @@ export async function updateCustomerProfile(formData) {
     .eq("id", customerId);
 
   if (error) {
-    console.log(error);
     throw new Error("Profil bilgisi güncellenemedi.");
   }
 }
@@ -323,7 +308,6 @@ export async function addCustomerAddress(formData) {
   });
 
   if (error) {
-    console.log(error);
     throw new Error("Adres bilgisi eklenemedi.");
   }
   revalidatePath("/account/addresses");
@@ -367,7 +351,6 @@ export async function updateCustomerAddress(formData) {
     .eq("customer_id", customerId);
 
   if (error) {
-    console.log(error);
     throw new Error("Adres bilgisi güncellenemedi.");
   }
   revalidatePath("/account/addresses");
@@ -386,7 +369,6 @@ export async function getAddress() {
     .eq("customer_id", customerId);
 
   if (error) {
-    console.log(error);
     throw new Error("Adres bilgisi alınamadı.");
   }
 
@@ -407,7 +389,6 @@ export async function deleteAddress(addressId) {
     .eq("customer_id", customerId);
 
   if (error) {
-    console.log(error);
     throw new Error("Adres bilgisi silinemedi.");
   }
 
@@ -432,7 +413,6 @@ export async function getFilteredProducts(query) {
     .ilike("name", `%${query}%`);
 
   if (error) {
-    console.error("Arama hatası:", error);
     return [];
   }
 
@@ -451,7 +431,6 @@ export async function updateCartQuantity({ product_variant_id, quantity }) {
     .eq("product_variant_id", product_variant_id);
 
   if (error) {
-    console.error("Güncelleme hatası:", error);
     throw new Error("Sepet güncellenemedi.");
   }
 }
@@ -574,7 +553,7 @@ export async function createStripeSession(orderId) {
     return {
       quantity: item.quantity,
       price_data: {
-        currency: "usd",
+        currency: "try",
         product_data: { name: product?.name ?? "Ürün" },
         unit_amount: Math.round(Number(product?.price) * 100),
       },
