@@ -16,6 +16,7 @@ export default function PaymentPage() {
         const url = await createStripeSession(orderId);
         window.location.href = url; // ✅ doğru yönlendirme
       } catch (err) {
+        console.error(err);
         alert("Ödeme başlatılamadı.");
       }
     }
