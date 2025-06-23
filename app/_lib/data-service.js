@@ -190,8 +190,8 @@ export async function createCustomer(newCustomer) {
     email: newCustomer.email,
     first_name: first_name,
     last_name: last_name,
-    full_name: newCustomer.fullName,
   };
+
   const { data, error } = await supabase
     .from("customers")
     .insert([customerData])
