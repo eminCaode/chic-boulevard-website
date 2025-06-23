@@ -4,6 +4,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2023-10-16",
 });
 
+const baseUrl = process.env.NEXTAUTH_URL;
+
 export async function POST(req) {
   try {
     const session = await stripe.checkout.sessions.create({
@@ -21,8 +23,8 @@ export async function POST(req) {
           quantity: 1,
         },
       ],
-      success_url: "http://localhost:3000/success",
-      cancel_url: "http://localhost:3000/cancel",
+      success_url: `${baseUrl}/success`,
+      cancel_url: `${baseUrl}/cancel`,
     });
 
     return Response.json({ url: session.url });
