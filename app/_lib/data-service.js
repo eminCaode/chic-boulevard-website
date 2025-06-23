@@ -214,6 +214,7 @@ export async function getCustomer(email) {
     .maybeSingle();
 
   if (error) {
+    console.log("Customer get error", error);
     throw error;
   }
 
