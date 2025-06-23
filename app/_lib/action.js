@@ -526,56 +526,69 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 export async function createStripeSession(orderId) {
   const session = await auth();
   const customerId = session?.user?.customerId;
-  if (!customerId) throw new Error("Giriş yapılmamış.");
-
-  const { data: cartItems, error } = await supabase
-    .from("cart")
-    .select(
-      `
-      quantity,
-      product_variant_id (
-        id,
-        products (
-          name,
-          price
-        )
-      )
-    `
-    )
-    .eq("customer_id", customerId);
-
-  if (error || !cartItems || cartItems.length === 0) {
-    throw new Error("Sepet boş ya da yüklenemedi.");
+  if (!customerId) {
+    // Bu hata istemciye doğru şekilde iletilecektir
+    throw new Error("Giriş yapılmamış.");
   }
 
-  const line_items = cartItems.map((item) => {
-    const product = item.product_variant_id?.products;
-    return {
-      quantity: item.quantity,
-      price_data: {
-        currency: "try",
-        product_data: { name: product?.name ?? "Ürün" },
-        unit_amount: Math.round(Number(product?.price) * 100),
+  try {
+    const { data: cartItems, error } = await supabase
+      .from("cart")
+      .select(
+        `
+        quantity,
+        product_variant_id (
+          id,
+          products (
+            name,
+            price
+          )
+        )
+      `
+      )
+      .eq("customer_id", customerId);
+
+    if (error || !cartItems || cartItems.length === 0) {
+      // Supabase hatasını sunucu loglarına yazdırın
+      console.error("Supabase Sepet Yükleme Hatası:", error);
+      throw new Error("Sepet boş ya da yüklenemedi.");
+    }
+
+    const line_items = cartItems.map((item) => {
+      const product = item.product_variant_id?.products;
+      return {
+        quantity: item.quantity,
+        price_data: {
+          currency: "try",
+          product_data: { name: product?.name ?? "Ürün" },
+          unit_amount: Math.round(Number(product?.price) * 100),
+        },
+      };
+    });
+
+    // Burada hata oluşma olasılığı yüksek!
+    const sessionObj = await stripe.checkout.sessions.create({
+      line_items,
+      mode: "payment",
+      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success`,
+      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cancel`,
+      metadata: {
+        order_id: orderId,
+        customer_id: customerId,
       },
-    };
-  });
+    });
 
-  const sessionObj = await stripe.checkout.sessions.create({
-    line_items,
-    mode: "payment",
-    success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success`,
-    cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cancel`,
-    metadata: {
-      order_id: orderId,
-      customer_id: customerId,
-    },
-  });
+    // Stripe session'ı orders tablosuna yaz
+    await supabase
+      .from("orders")
+      .update({ stripe_session: sessionObj.id })
+      .eq("id", orderId);
 
-  // Stripe session'ı orders tablosuna yaz
-  await supabase
-    .from("orders")
-    .update({ stripe_session: sessionObj.id })
-    .eq("id", orderId);
-
-  return sessionObj.url;
+    return sessionObj.url;
+  } catch (err) {
+    // Stripe veya diğer beklenmedik hataları burada yakalayın ve sunucu loglarına yazdırın
+    console.error("createStripeSession Sunucu Hatası:", err);
+    // İstemciye daha genel bir hata döndürün (güvenlik için detayları vermeyin)
+    throw new Error("Ödeme oturumu oluşturulurken bir hata oluştu.");
+  }
 }
