@@ -182,14 +182,24 @@ export async function getProductBySlug(slug) {
 }
 
 export async function createCustomer(newCustomer) {
-  const [first_name, ...rest] = fullName.split(" ");
+  const [first_name, ...rest] = newCustomer.fullName.split(" ");
   const last_name = rest.join(" ") || "";
 
+  // Supabase'e kaydetmek için veriyi hazırla
+  const customerData = {
+    email: newCustomer.email,
+    first_name: first_name,
+    last_name: last_name,
+    full_name: newCustomer.fullName,
+  };
   const { data, error } = await supabase
     .from("customers")
-    .insert([newCustomer]);
+    .insert([customerData])
+    .select(); // Insert edilen veriyi geri döndür
 
   if (error) {
+    console.error("Customer creation error:", error);
+
     throw error;
   }
 
