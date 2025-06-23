@@ -23,8 +23,8 @@ export async function POST(req) {
           quantity: 1,
         },
       ],
-      success_url: `${baseUrl}/success`,
-      cancel_url: `${baseUrl}/cancel`,
+      success_url: `${baseUrl}success`,
+      cancel_url: `${baseUrl}cancel`,
     });
 
     return Response.json({ url: session.url });
