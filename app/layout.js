@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import Header from "./_components/Header";
 import Footer from "./_components/Footer";
 import { CartProvider } from "./context/CartContext";
+import { Analytics } from "@vercel/analytics/next";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -27,6 +28,7 @@ export default function RootLayout({ children }) {
           <main className="min-h-screen pt-20">{children}</main>
           <Footer />
         </CartProvider>
+        <Analytics />
       </body>
     </html>
   );
