@@ -17,7 +17,7 @@ jobs:
       - name: Ping site (triggers a Supabase query)
         run: |
           curl -sf --retry 3 --retry-delay 10 -o page.html https://chic-boulevard-website-uq12.vercel.app/
-          grep -q '/product/' page.html || { echo "No products on home page - is Supabase paused?"; exit 1; }
+          grep -q 'slug' page.html || { echo "No products on home page - is Supabase paused?"; exit 1; }
       # GitHub disables scheduled workflows in public repos after 60 days without activity.
       - name: Keep this workflow enabled
         env:
