@@ -27,7 +27,7 @@ const authConfig = {
     },
     async session({ session, user }) {
       const customer = await getCustomer(session.user.email);
-      session.user.customerId = customer.id;
+      session.user.customerId = customer?.id;
       return session;
     },
   },

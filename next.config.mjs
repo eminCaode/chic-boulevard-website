@@ -1,16 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: [
-      "localhost",
-      "images.unsplash.com",
-      "res.cloudinary.com",
-      "eptmfstbrximgirfchrq.supabase.co",
-      "lh3.googleusercontent.com",
+    remotePatterns: [
+      { protocol: "http", hostname: "localhost" },
+      { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "res.cloudinary.com" },
+      { protocol: "https", hostname: "*.supabase.co" },
+      { protocol: "https", hostname: "lh3.googleusercontent.com" },
     ],
-  },
-  experimental: {
-    turbo: false, // Turbopack'i kapat
   },
 };
 
