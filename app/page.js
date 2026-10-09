@@ -4,8 +4,16 @@ import Section from "./_components/Section";
 import { getProducts } from "./_lib/data-service";
 import Link from "next/link";
 
+// Re-fetch products every 5 minutes instead of freezing them at build time.
+export const revalidate = 300;
+
 export default async function Home() {
-  const products = await getProducts();
+  let products = [];
+  try {
+    products = await getProducts();
+  } catch (err) {
+    console.error(err);
+  }
   return (
     <>
       <div className="w-full h-[592px] relative">
